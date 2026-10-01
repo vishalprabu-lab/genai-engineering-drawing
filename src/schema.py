@@ -55,5 +55,6 @@ class DrawingReview(BaseModel):
     description: str                       # what the drawing shows
     specifications: Specifications
     dimensions: DimensionsSummary
-    findings: list[Finding]                # empty list if no errors were found
+    findings: list[Finding]                # priority: missing dimensions / missing datums; empty if none
+    other_issues: list[Finding]            # any other error or concern; empty if none
     overall_assessment: str                # short verdict for the scanning engineer

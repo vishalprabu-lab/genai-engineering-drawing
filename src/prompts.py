@@ -47,6 +47,15 @@ Return ONLY a JSON object that matches this structure exactly (no markdown, no e
       "recommendation": string
     }
   ],
+  "other_issues": [
+    {
+      "category": string,
+      "severity": "high" | "medium" | "low",
+      "location": string,
+      "description": string,
+      "recommendation": string
+    }
+  ],
   "overall_assessment": string
 }
 
@@ -54,9 +63,8 @@ Return ONLY a JSON object that matches this structure exactly (no markdown, no e
 - If an optional field cannot be found on the drawing, return null. Do NOT guess
   or infer a value. A missing field is a meaningful signal for the reviewer, not
   a failure on your part.
-- Look for errors of any kind (inconsistent or conflicting dimensions, missing
-  tolerances, unclear views, title-block problems, unclear notes, etc.), but
-  check these two categories FIRST because they are the highest priority:
+- Check these two categories FIRST because they are the highest priority, and
+  report them in "findings":
     1. MISSING DIMENSIONS - features that cannot be manufactured or inspected
        because a size, position or angle is not given.
     2. MISSING DATUMS - a datum is the reference feature or surface that other
@@ -65,8 +73,19 @@ Return ONLY a JSON object that matches this structure exactly (no markdown, no e
        datum features identified) has a real defect.
 - Give missing dimensions and missing datums "high" severity unless the impact
   is clearly minor.
-- For each finding, state where on the drawing it applies (view, zone or feature).
-- If you find no errors, return an empty "findings" list.
+- THEN make a second, separate pass for every OTHER kind of error or concern,
+  and report these in "other_issues". Do not skip this pass just because
+  "findings" is empty or already long. Examples: inconsistent or conflicting
+  dimensions, over-dimensioning or duplicate dimensions, missing or unclear
+  tolerances, tolerances that are unrealistic or contradict the general
+  tolerance, missing or non-standard views, sections or details, unclear or
+  contradictory notes, title-block or revision problems, missing material or
+  surface-finish or heat-treatment callouts, non-standard symbols or
+  dimensioning practice, and anything else a careful reviewer would flag.
+- Report each issue once: do not repeat an item from "findings" in "other_issues".
+- For each item in either list, state where on the drawing it applies (view,
+  zone or feature).
+- If a list has no entries, return it as an empty list.
 - Keep every description and recommendation to one or two short sentences.
 - Dimension counts are best-effort estimates; give your best count.
 """

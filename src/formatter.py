@@ -20,6 +20,17 @@ def _section(title: str) -> str:
     return f"\n{title}\n{'-' * len(title)}"
 
 
+def _append_findings(lines: list, findings: list, empty_text: str) -> None:
+    """Append a numbered list of findings, or `empty_text` if there are none."""
+    if not findings:
+        lines.append(empty_text)
+    for number, finding in enumerate(findings, start=1):
+        lines.append(f"{number}. [{finding.severity.upper()}] {finding.category}")
+        lines.append(f"   Location       : {finding.location}")
+        lines.append(f"   Issue          : {finding.description}")
+        lines.append(f"   Recommendation : {finding.recommendation}")
+
+
 def format_review(review: DrawingReview) -> str:
     """Build the full text report for a review."""
     lines = [_LINE, "ENGINEERING DRAWING REVIEW", _LINE]
@@ -52,18 +63,14 @@ def format_review(review: DrawingReview) -> str:
     lines.append(f"Total dimensions found    : {dims.total_dimensions_found}")
     lines.append(f"Dimensions with tolerance : {dims.dimensions_with_tolerance}")
 
-    # Section 5: findings, or an explicit statement that there are none.
-    lines.append(_section(f"5. FINDINGS ({len(review.findings)})"))
-    if not review.findings:
-        lines.append("No findings - no errors were identified on this drawing.")
-    for number, finding in enumerate(review.findings, start=1):
-        lines.append(f"{number}. [{finding.severity.upper()}] {finding.category}")
-        lines.append(f"   Location       : {finding.location}")
-        lines.append(f"   Issue          : {finding.description}")
-        lines.append(f"   Recommendation : {finding.recommendation}")
+    # Sections 5-6: priority findings, then any other issues; each says so explicitly when empty.
+    lines.append(_section(f"5. FINDINGS - MISSING DIMENSIONS / DATUMS ({len(review.findings)})"))
+    _append_findings(lines, review.findings, "None - no missing dimensions or datums were identified.")
+    lines.append(_section(f"6. OTHER ISSUES ({len(review.other_issues)})"))
+    _append_findings(lines, review.other_issues, "None - no other issues were identified.")
 
-    # Section 6: overall verdict.
-    lines.append(_section("6. OVERALL ASSESSMENT"))
+    # Section 7: overall verdict.
+    lines.append(_section("7. OVERALL ASSESSMENT"))
     lines.append(_value(review.overall_assessment))
     lines.append(_LINE)
 
