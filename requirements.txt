@@ -1,0 +1,7 @@
+pymupdf>=1,<2
+google-genai>=1,<2
+pydantic>=2,<3
+python-dotenv>=1,<2
+pillow>=10,<12
+jupyter>=1,<2
+ipykernel>=6,<7
